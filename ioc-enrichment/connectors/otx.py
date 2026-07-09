@@ -1,8 +1,8 @@
-import time
 from typing import Dict
 from OTXv2 import OTXv2, IndicatorTypes, InvalidAPIKey as OTXInvalidAPIKey, BadRequest, RetryError
 
 from config import require_otx_key
+from connectors._rate_limit import RateLimiter
 from connectors.exceptions import (
     InvalidAPIKeyError,
     IOCNotFoundError,
@@ -18,7 +18,7 @@ _IOC_TYPE_MAP: Dict[str, IndicatorTypes] = {
 }
 
 _RATE_LIMIT_SLEEP = 1.0
-_last_call: float = 0.0
+_rate_limiter = RateLimiter(_RATE_LIMIT_SLEEP)
 
 
 def query(ioc: str, ioc_type: str) -> dict:
@@ -44,14 +44,7 @@ def query(ioc: str, ioc_type: str) -> dict:
         )
 
     api_key = require_otx_key()
-
-    global _last_call
-    now = time.time()
-    elapsed = now - _last_call
-    if elapsed < _RATE_LIMIT_SLEEP:
-        time.sleep(_RATE_LIMIT_SLEEP - elapsed)
-    _last_call = time.time()
-
+    _rate_limiter.wait()
     client = OTXv2(api_key)
 
     try:

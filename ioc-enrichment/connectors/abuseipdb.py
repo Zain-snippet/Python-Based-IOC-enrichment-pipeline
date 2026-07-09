@@ -1,8 +1,7 @@
-import time
-
 import requests
 
 from config import require_abuseipdb_key
+from connectors._rate_limit import RateLimiter
 from connectors.exceptions import (
     InvalidAPIKeyError,
     IOCNotFoundError,
@@ -14,16 +13,7 @@ from connectors.exceptions import (
 
 _BASE_URL = "https://api.abuseipdb.com/api/v2/check"
 _MIN_INTERVAL = 6.0
-_last_call: float = 0.0
-
-
-def _rate_limit() -> None:
-    global _last_call
-    now = time.time()
-    elapsed = now - _last_call
-    if elapsed < _MIN_INTERVAL:
-        time.sleep(_MIN_INTERVAL - elapsed)
-    _last_call = time.time()
+_rate_limiter = RateLimiter(_MIN_INTERVAL)
 
 
 def query(ioc: str, ioc_type: str) -> dict:
@@ -33,7 +23,7 @@ def query(ioc: str, ioc_type: str) -> dict:
         )
 
     api_key = require_abuseipdb_key()
-    _rate_limit()
+    _rate_limiter.wait()
 
     headers = {
         "Key": api_key,

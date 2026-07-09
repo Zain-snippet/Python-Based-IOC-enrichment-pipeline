@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -63,37 +64,77 @@ def _sources_for(ioc_type: str) -> list[str]:
     return [s for s in SOURCES if ioc_type in _SOURCE_IOC_SUPPORT[s]]
 
 
+def _enrich_source(
+    ioc: str, ioc_type: str, source: str,
+) -> tuple[IOCResult, list[str]]:
+    """Call connector.query + normalize for a single source and return the
+    IOCResult along with any diagnostic messages to be printed later.
+
+    Every code path produces an IOCResult (never raises), so the caller
+    always gets a result even on total failure.
+    """
+    messages: list[str] = []
+    connector_module, normalize_fn = SOURCES[source]
+    try:
+        raw = connector_module.query(ioc, ioc_type)
+        result = normalize_fn(raw, ioc, ioc_type)
+    except (UnsupportedIOCTypeError, MissingAPIKeyError, ConnectorError) as e:
+        messages.append(f"  [error] {source}: {e}")
+        result = IOCResult(
+            source=source,
+            ioc=ioc,
+            ioc_type=ioc_type,
+            query_success=False,
+            error=str(e),
+        )
+    except Exception as e:
+        messages.append(f"  [error] {source}: unexpected failure: {e}")
+        result = IOCResult(
+            source=source,
+            ioc=ioc,
+            ioc_type=ioc_type,
+            query_success=False,
+            error=f"Unexpected error: {e}",
+        )
+    return result, messages
+
+
 def enrich(ioc: str, ioc_type: str, sources: list[str]) -> list[IOCResult]:
-    results: list[IOCResult] = []
-    for source in sources:
+    """Query each requested source in parallel (up to 3 workers) and
+    normalize the result.
+
+    Per-source error handling matches the original sequential logic exactly;
+    messages are buffered per-thread and printed in source order after all
+    threads finish so the terminal output remains readable.
+    """
+    # Pre-filter: skip unsupported sources before submitting any thread work.
+    tasks: list[tuple[int, str]] = []
+    for i, source in enumerate(sources):
         if ioc_type not in _SOURCE_IOC_SUPPORT[source]:
             print(
                 f"  [skip] {source}: does not support ioc_type '{ioc_type}'",
                 file=sys.stderr,
             )
             continue
-        connector_module, normalize_fn = SOURCES[source]
-        try:
-            raw = connector_module.query(ioc, ioc_type)
-            result = normalize_fn(raw, ioc, ioc_type)
-        except (UnsupportedIOCTypeError, MissingAPIKeyError, ConnectorError) as e:
-            print(f"  [error] {source}: {e}", file=sys.stderr)
-            result = IOCResult(
-                source=source,
-                ioc=ioc,
-                ioc_type=ioc_type,
-                query_success=False,
-                error=str(e),
-            )
-        except Exception as e:
-            print(f"  [error] {source}: unexpected failure: {e}", file=sys.stderr)
-            result = IOCResult(
-                source=source,
-                ioc=ioc,
-                ioc_type=ioc_type,
-                query_success=False,
-                error=f"Unexpected error: {e}",
-            )
+        tasks.append((i, source))
+
+    # Submit remaining sources to the thread pool.
+    result_map: dict[int, tuple[IOCResult, list[str]]] = {}
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        future_map: dict = {
+            executor.submit(_enrich_source, ioc, ioc_type, s): idx
+            for idx, s in tasks
+        }
+        for future in as_completed(future_map):
+            idx = future_map[future]
+            result_map[idx] = future.result()
+
+    # Reconstruct in original source order.
+    results: list[IOCResult] = []
+    for idx, _ in tasks:
+        result, messages = result_map[idx]
+        for m in messages:
+            print(m, file=sys.stderr)
         results.append(result)
     return results
 
