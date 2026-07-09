@@ -19,6 +19,7 @@ Usage:
 
 import argparse
 import json
+import os
 import sys
 
 from connectors import abuseipdb as abuseipdb_connector
@@ -110,10 +111,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Enrich an IOC across sources and export it as a STIX 2.1 bundle."
     )
-    parser.add_argument("ioc", nargs="?", help="The indicator value (IP, domain, hash, or URL)")
+    parser.add_argument("ioc", help="The indicator value (IP, domain, hash, or URL)")
     parser.add_argument(
         "--type",
         dest="ioc_type",
+        required=True,
         choices=["ip", "domain", "hash", "url"],
         help="Type of the IOC",
     )
@@ -124,10 +126,16 @@ def main() -> None:
     )
     parser.add_argument(
         "--out",
-        default="output/bundle.json",
-        help="Path to write the STIX bundle JSON (default: output/bundle.json)",
+        default=None,
+        help="Path to write the STIX bundle JSON (default: <script_dir>/output/bundle.json)",
     )
     args = parser.parse_args()
+
+    if args.out is None:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        args.out = os.path.join(script_dir, "output", "bundle.json")
+
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
 
     sources = [s.strip() for s in args.sources.split(",") if s.strip()]
     unknown = set(sources) - set(SOURCES)
