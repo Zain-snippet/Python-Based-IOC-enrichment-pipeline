@@ -1,0 +1,16 @@
+{
+    "type": "bundle",
+    "id": "bundle--1ddc388f-3659-45e9-95f7-839bab0e62ad",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--732a7791-5c73-48f0-8a3f-55d2891ec00b",
+            "created": "2026-07-09T07:18:51.788791Z",
+            "modified": "2026-07-09T07:18:51.788791Z",
+            "name": "IOC-Enrichment-Pipeline",
+            "description": "Automated multi-source IOC enrichment and STIX 2.1 export tool",
+            "identity_class": "system"
+        }
+    ]
+}

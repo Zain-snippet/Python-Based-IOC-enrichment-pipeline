@@ -1,0 +1,4 @@
+OTXv2>=1.5.12
+requests>=2.31.0
+python-dotenv>=1.0.0
+stix2>=3.0.0

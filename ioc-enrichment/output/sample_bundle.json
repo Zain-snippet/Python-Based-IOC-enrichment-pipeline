@@ -1,0 +1,146 @@
+{
+    "type": "bundle",
+    "id": "bundle--a8717e3d-b747-48ee-a643-2a55c848b828",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.107292Z",
+            "modified": "2026-07-09T07:18:52.107292Z",
+            "name": "IOC-Enrichment-Pipeline",
+            "description": "Automated multi-source IOC enrichment and STIX 2.1 export tool",
+            "identity_class": "system"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--639cce09-dd2f-4540-8e2a-89403323c46e",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.107735Z",
+            "modified": "2026-07-09T07:18:52.107735Z",
+            "name": "103.235.46.39 (ip) - otx",
+            "description": "Source: otx; Report: https://otx.alienvault.com/indicator/ip/103.235.46.39; Raw score: 3.0",
+            "indicator_types": [
+                "malicious-activity"
+            ],
+            "pattern": "[ipv4-addr:value = '103.235.46.39']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2025-01-15T10:30:00Z",
+            "valid_until": "2025-06-22T16:30:00Z",
+            "labels": [
+                "c2",
+                "mirai",
+                "malware",
+                "scanner",
+                "bruteforce"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--bb42469a-45e6-4c2c-b741-cbf34ea719e2",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.115927Z",
+            "modified": "2026-07-09T07:18:52.115927Z",
+            "name": "1.1.1.1 (ip) - otx",
+            "description": "Source: otx; Report: https://otx.alienvault.com/indicator/ip/1.1.1.1; Raw score: 0.0",
+            "indicator_types": [
+                "benign"
+            ],
+            "pattern": "[ipv4-addr:value = '1.1.1.1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T07:18:52Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--173a2e4e-0032-4e84-a76d-3bcf15c9a5cd",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.116808Z",
+            "modified": "2026-07-09T07:18:52.116808Z",
+            "name": "44d88612fea8a8f36de82e1278abb02f (hash) - virustotal",
+            "description": "Source: virustotal; Report: https://www.virustotal.com/gui/file/44d88612fea8a8f36de82e1278abb02f/detection; Raw score: 0.2143",
+            "indicator_types": [
+                "malicious-activity"
+            ],
+            "pattern": "[file:hashes.'MD5' = '44d88612fea8a8f36de82e1278abb02f']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2023-11-14T22:13:20Z",
+            "valid_until": "2024-05-06T12:53:20Z",
+            "labels": [
+                "peexe",
+                "trojan",
+                "executable"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--36ff4c95-90a7-4039-a041-4b24f0b82239",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.11942Z",
+            "modified": "2026-07-09T07:18:52.11942Z",
+            "name": "google.com (domain) - virustotal",
+            "description": "Source: virustotal; Report: https://www.virustotal.com/gui/domain/google.com/detection; Raw score: 0.0",
+            "indicator_types": [
+                "benign"
+            ],
+            "pattern": "[domain-name:value = 'google.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T07:18:52Z",
+            "labels": [
+                "searchengine"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--5a64b866-922c-4e82-9486-c5c22eee6b08",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.120794Z",
+            "modified": "2026-07-09T07:18:52.120794Z",
+            "name": "103.235.46.39 (ip) - abuseipdb",
+            "description": "Source: abuseipdb; Report: https://www.abuseipdb.com/check/103.235.46.39; Raw score: 85.0",
+            "indicator_types": [
+                "malicious-activity"
+            ],
+            "pattern": "[ipv4-addr:value = '103.235.46.39']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T07:18:52Z",
+            "labels": [
+                "port_scan",
+                "brute_force",
+                "ssh_bruteforce"
+            ],
+            "confidence": 85
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--8c857128-9ffc-41b8-8086-0780c63a1592",
+            "created_by_ref": "identity--20d999e1-e3b7-48fa-abf7-66288e083094",
+            "created": "2026-07-09T07:18:52.121398Z",
+            "modified": "2026-07-09T07:18:52.121398Z",
+            "name": "1.1.1.1 (ip) - abuseipdb",
+            "description": "Source: abuseipdb; Report: https://www.abuseipdb.com/check/1.1.1.1; Raw score: 0.0",
+            "indicator_types": [
+                "benign"
+            ],
+            "pattern": "[ipv4-addr:value = '1.1.1.1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T07:18:52Z",
+            "labels": [
+                "whitelisted",
+                "domain:cloudflare.com"
+            ],
+            "confidence": 0
+        }
+    ]
+}
