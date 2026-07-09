@@ -1,6 +1,6 @@
 import time
 from typing import Dict
-from OTXv2 import OTXv2, InvalidAPIKey as OTXInvalidAPIKey, BadRequest, RetryError
+from OTXv2 import OTXv2, IndicatorTypes, InvalidAPIKey as OTXInvalidAPIKey, BadRequest, RetryError
 
 from config import require_otx_key
 from connectors.exceptions import (
@@ -11,11 +11,11 @@ from connectors.exceptions import (
     ConnectorError,
 )
 
-_IOC_TYPE_MAP: Dict[str, str] = {
-    "ip": "IPv4",
-    "domain": "Domain",
-    "hash": "SHA256",
-    "url": "URL",
+_IOC_TYPE_MAP: Dict[str, IndicatorTypes] = {
+    "ip": IndicatorTypes.IPv4,
+    "domain": IndicatorTypes.Domain,
+    "hash": IndicatorTypes.SHA256,
+    "url": IndicatorTypes.URL,
 }
 
 _RATE_LIMIT_SLEEP = 1.0
