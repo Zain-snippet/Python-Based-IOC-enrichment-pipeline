@@ -13,8 +13,7 @@ from connectors.exceptions import (
 
 _IOC_TYPE_MAP: Dict[str, IndicatorTypes] = {
     "ip": IndicatorTypes.IPv4,
-    "domain": IndicatorTypes.Domain,
-    "hash": IndicatorTypes.SHA256,
+    "domain": IndicatorTypes.DOMAIN,
     "url": IndicatorTypes.URL,
 }
 
@@ -23,13 +22,28 @@ _last_call: float = 0.0
 
 
 def query(ioc: str, ioc_type: str) -> dict:
-    if ioc_type not in _IOC_TYPE_MAP:
+    if ioc_type == "hash":
+        length = len(ioc)
+        if length == 32:
+            otx_section = IndicatorTypes.FILE_HASH_MD5
+        elif length == 40:
+            otx_section = IndicatorTypes.FILE_HASH_SHA1
+        elif length == 64:
+            otx_section = IndicatorTypes.FILE_HASH_SHA256
+        else:
+            raise ValueError(
+                f"Cannot detect hash algorithm for '{ioc}': "
+                f"expected 32, 40, or 64 hex characters, got {length}"
+            )
+    elif ioc_type in _IOC_TYPE_MAP:
+        otx_section = _IOC_TYPE_MAP[ioc_type]
+    else:
         raise ValueError(
-            f"Unsupported ioc_type '{ioc_type}'. Must be one of: {list(_IOC_TYPE_MAP)}"
+            f"Unsupported ioc_type '{ioc_type}'. "
+            f"Must be one of: ip, domain, hash, url"
         )
 
     api_key = require_otx_key()
-    otx_section = _IOC_TYPE_MAP[ioc_type]
 
     global _last_call
     now = time.time()

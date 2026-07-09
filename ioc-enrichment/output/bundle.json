@@ -1,13 +1,13 @@
 {
     "type": "bundle",
-    "id": "bundle--c438c367-a033-4de6-9099-554fab826e43",
+    "id": "bundle--43cedd35-0d18-416b-afd8-2edaad6106da",
     "objects": [
         {
             "type": "identity",
             "spec_version": "2.1",
-            "id": "identity--caff608c-d2da-48b2-b381-51dddc12af0a",
-            "created": "2026-07-09T08:12:53.002914Z",
-            "modified": "2026-07-09T08:12:53.002914Z",
+            "id": "identity--be241be7-53e2-403f-af08-d70fa519e0e6",
+            "created": "2026-07-09T08:24:33.094719Z",
+            "modified": "2026-07-09T08:24:33.094719Z",
             "name": "IOC-Enrichment-Pipeline",
             "description": "Automated multi-source IOC enrichment and STIX 2.1 export tool",
             "identity_class": "system"
@@ -15,10 +15,27 @@
         {
             "type": "indicator",
             "spec_version": "2.1",
-            "id": "indicator--496286fe-657a-44c4-a035-4a5f9b614493",
-            "created_by_ref": "identity--caff608c-d2da-48b2-b381-51dddc12af0a",
-            "created": "2026-07-09T08:12:56.441054Z",
-            "modified": "2026-07-09T08:12:56.441054Z",
+            "id": "indicator--bdcb35c7-62f5-4772-a170-68acdecaaa6c",
+            "created_by_ref": "identity--be241be7-53e2-403f-af08-d70fa519e0e6",
+            "created": "2026-07-09T08:25:01.321589Z",
+            "modified": "2026-07-09T08:25:01.321589Z",
+            "name": "1.1.1.1 (ip) - otx",
+            "description": "Source: otx; Report: https://otx.alienvault.com/indicator/ip/1.1.1.1; Raw score: 0.0",
+            "indicator_types": [
+                "benign"
+            ],
+            "pattern": "[ipv4-addr:value = '1.1.1.1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T08:25:01Z"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--fee95245-fc4c-4d55-9464-ace2290a8348",
+            "created_by_ref": "identity--be241be7-53e2-403f-af08-d70fa519e0e6",
+            "created": "2026-07-09T08:25:01.354405Z",
+            "modified": "2026-07-09T08:25:01.354405Z",
             "name": "1.1.1.1 (ip) - virustotal",
             "description": "Source: virustotal; Report: https://www.virustotal.com/gui/ip-address/1.1.1.1/detection; Raw score: 0.0",
             "indicator_types": [
@@ -27,7 +44,7 @@
             "pattern": "[ipv4-addr:value = '1.1.1.1']",
             "pattern_type": "stix",
             "pattern_version": "2.1",
-            "valid_from": "2026-07-09T08:12:56Z",
+            "valid_from": "2026-07-09T08:25:01Z",
             "labels": [
                 "suspicious-udp"
             ]
@@ -35,10 +52,10 @@
         {
             "type": "indicator",
             "spec_version": "2.1",
-            "id": "indicator--a7e4c252-3502-48a2-9e2f-497e197f6bfb",
-            "created_by_ref": "identity--caff608c-d2da-48b2-b381-51dddc12af0a",
-            "created": "2026-07-09T08:12:56.49309Z",
-            "modified": "2026-07-09T08:12:56.49309Z",
+            "id": "indicator--87f63706-3511-4603-b1ac-1a2f07c4db7c",
+            "created_by_ref": "identity--be241be7-53e2-403f-af08-d70fa519e0e6",
+            "created": "2026-07-09T08:25:01.357681Z",
+            "modified": "2026-07-09T08:25:01.357681Z",
             "name": "1.1.1.1 (ip) - abuseipdb",
             "description": "Source: abuseipdb; Report: https://www.abuseipdb.com/check/1.1.1.1; Raw score: 0.0",
             "indicator_types": [
@@ -47,7 +64,7 @@
             "pattern": "[ipv4-addr:value = '1.1.1.1']",
             "pattern_type": "stix",
             "pattern_version": "2.1",
-            "valid_from": "2026-07-09T08:12:56Z",
+            "valid_from": "2026-07-09T08:25:01Z",
             "labels": [
                 "usage:Content Delivery Network",
                 "whitelisted",
