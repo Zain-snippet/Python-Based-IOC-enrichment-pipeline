@@ -110,11 +110,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Enrich an IOC across sources and export it as a STIX 2.1 bundle."
     )
-    parser.add_argument("ioc", help="The indicator value (IP, domain, hash, or URL)")
+    parser.add_argument("ioc", nargs="?", help="The indicator value (IP, domain, hash, or URL)")
     parser.add_argument(
         "--type",
         dest="ioc_type",
-        required=True,
         choices=["ip", "domain", "hash", "url"],
         help="Type of the IOC",
     )
