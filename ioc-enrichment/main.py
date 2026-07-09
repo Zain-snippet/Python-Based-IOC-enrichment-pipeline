@@ -18,6 +18,9 @@ _ioc_enrichment_dir = os.path.join(_script_dir, "ioc-enrichment")
 if _ioc_enrichment_dir not in sys.path:
     sys.path.insert(0, _ioc_enrichment_dir)
 
+import stix2
+
+from aggregator.aggregator import aggregate, AggregatedResult
 from connectors import abuseipdb as abuseipdb_connector
 from connectors import otx as otx_connector
 from connectors import virustotal as vt_connector
@@ -27,7 +30,7 @@ from normalizers.abuseipdb_normalizer import normalize as abuseipdb_normalize
 from normalizers.otx_normalizer import normalize as otx_normalize
 from normalizers.schema import IOCResult
 from normalizers.vt_normalizer import normalize as vt_normalize
-from stix.stix_converter import to_stix_bundle
+from stix.stix_converter import to_stix_indicator_aggregated, TOOL_IDENTITY
 
 SOURCES = {
     "otx": (otx_connector, otx_normalize),
@@ -177,7 +180,7 @@ def main() -> None:
     if url:
         iocs_to_process.append((url, "url", _sources_for("url")))
 
-    all_results: list[IOCResult] = []
+    aggregated_results: list[AggregatedResult] = []
 
     print("\n" + "-" * 60)
     print("  Enriching IOCs...")
@@ -189,11 +192,18 @@ def main() -> None:
             label = label[:67] + "..."
         print(f"\n  {label}")
         results = enrich(ioc_val, ioc_type_val, sources)
-        all_results.extend(results)
+        agg = aggregate(results)
+        aggregated_results.append(agg)
+        print(f"    Verdict: {agg.final_verdict} (confidence: {agg.aggregate_confidence}/100)")
         for r in results:
-            print(f"    {_summary(r)}")
+            print(f"      {_summary(r)}")
 
-    bundle = to_stix_bundle(all_results)
+    bundle_objects: list = [TOOL_IDENTITY]
+    for agg in aggregated_results:
+        indicator = to_stix_indicator_aggregated(agg)
+        if indicator is not None:
+            bundle_objects.append(indicator)
+    bundle = stix2.Bundle(*bundle_objects)
     stix_json = bundle.serialize(pretty=True)
 
     output_dir = os.path.join(_script_dir, "output")
@@ -206,11 +216,12 @@ def main() -> None:
 
     parsed = json.loads(stix_json)
     n_indicators = sum(1 for o in parsed["objects"] if o["type"] == "indicator")
+    total_sources = sum(len(agg.sources_checked) for agg in aggregated_results)
 
     print("\n" + "=" * 60)
     print(f"  Processed {len(iocs_to_process)} IOC(s) across "
-          f"{len(all_results)} source result(s).")
-    print(f"  Produced {n_indicators} STIX indicator(s).")
+          f"{total_sources} source result(s).")
+    print(f"  Produced {n_indicators} aggregated STIX indicator(s).")
     print(f"  Bundle saved to: {out_path}")
     print("=" * 60)
 

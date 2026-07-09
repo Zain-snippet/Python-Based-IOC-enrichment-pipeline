@@ -1,0 +1,41 @@
+{
+    "type": "bundle",
+    "id": "bundle--42d6fd2a-e6b7-4c1e-9c89-3d312866a852",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--43bf1eea-5dc7-4359-aa97-4bbc14def715",
+            "created": "2026-07-09T10:11:29.174981Z",
+            "modified": "2026-07-09T10:11:29.174981Z",
+            "name": "IOC-Enrichment-Pipeline",
+            "description": "Automated multi-source IOC enrichment and STIX 2.1 export tool",
+            "identity_class": "system"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--5da0f8a3-583f-4c33-9b1a-3b16b91fd06d",
+            "created_by_ref": "identity--43bf1eea-5dc7-4359-aa97-4bbc14def715",
+            "created": "2026-07-09T10:12:40.72069Z",
+            "modified": "2026-07-09T10:12:40.72069Z",
+            "name": "192.168.3.1 (ip) - aggregated",
+            "description": "Aggregated verdict: benign (confidence: 0/100). Sources checked: otx, virustotal, abuseipdb. Sources flagging malicious: none.",
+            "indicator_types": [
+                "benign"
+            ],
+            "pattern": "[ipv4-addr:value = '192.168.3.1']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-07-09T10:12:40Z",
+            "labels": [
+                "brute_force",
+                "port_scan",
+                "private",
+                "usage:Reserved",
+                "web_app_attack"
+            ],
+            "confidence": 0
+        }
+    ]
+}

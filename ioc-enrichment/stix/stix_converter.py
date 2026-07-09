@@ -11,6 +11,7 @@ from typing import Optional
 
 import stix2
 
+from aggregator.aggregator import AggregatedResult
 from normalizers.schema import IOCResult
 
 # Shared Identity SDO representing this enrichment tool.
@@ -112,6 +113,73 @@ def to_stix_indicator(
 
     if result.confidence is not None:
         kwargs["confidence"] = result.confidence
+    if valid_until is not None and valid_until > valid_from:
+        kwargs["valid_until"] = valid_until
+
+    return stix2.Indicator(**kwargs)
+
+
+def to_stix_indicator_aggregated(
+    agg: AggregatedResult,
+    identity: stix2.Identity = TOOL_IDENTITY,
+) -> Optional[stix2.Indicator]:
+    """Convert an AggregatedResult into a single stix2 Indicator SDO.
+
+    Produces one merged Indicator per IOC (not one per source).
+    Returns None if final_verdict is "unknown" (no actionable data).
+    """
+    if agg.final_verdict == "unknown":
+        return None
+
+    try:
+        pattern = _build_pattern(agg.ioc, agg.ioc_type)
+    except ValueError:
+        return None
+
+    verdict_to_stix_type = {
+        "malicious": "malicious-activity",
+        "suspicious": "anomalous-activity",
+        "benign": "benign",
+    }
+    indicator_type = verdict_to_stix_type.get(agg.final_verdict, "unknown")
+
+    display_ioc = (agg.ioc[:48] + "...") if len(agg.ioc) > 48 else agg.ioc
+    name = f"{display_ioc} ({agg.ioc_type}) - aggregated"
+
+    flagged = ", ".join(agg.sources_flagged_malicious) or "none"
+    checked = ", ".join(agg.sources_checked)
+    description = (
+        f"Aggregated verdict: {agg.final_verdict} "
+        f"(confidence: {agg.aggregate_confidence}/100). "
+        f"Sources checked: {checked}. "
+        f"Sources flagging malicious: {flagged}."
+    )
+
+    valid_from = None
+    valid_until = None
+    for r in agg.individual_results:
+        fs = _fmt_ts(r.first_seen)
+        lu = _fmt_ts(r.last_seen)
+        if fs and (valid_from is None or fs < valid_from):
+            valid_from = fs
+        if lu and (valid_until is None or lu > valid_until):
+            valid_until = lu
+
+    if valid_from is None:
+        valid_from = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    kwargs: dict = {
+        "name": name,
+        "description": description,
+        "pattern": pattern,
+        "pattern_type": "stix",
+        "created_by_ref": str(identity.id),
+        "valid_from": valid_from,
+        "indicator_types": [indicator_type],
+        "labels": list(agg.all_tags),
+        "confidence": agg.aggregate_confidence,
+    }
+
     if valid_until is not None and valid_until > valid_from:
         kwargs["valid_until"] = valid_until
 
