@@ -6,6 +6,7 @@ Prompts the user for IOC values and routes them through connectors,
 normalizers, and STIX converter into a single STIX 2.1 bundle.
 """
 
+import ipaddress
 import json
 import os
 import re
@@ -42,22 +43,21 @@ _SOURCE_IOC_SUPPORT = {
 
 
 def _validate_ip(ip: str) -> bool:
-    parts = ip.split(".")
-    if len(parts) != 4:
+    try:
+        ipaddress.ip_address(ip)
+        return True
+    except ValueError:
         return False
-    for part in parts:
-        if not part.isdigit():
-            return False
-        n = int(part)
-        if n < 0 or n > 255:
-            return False
-    return True
 
 
 def _validate_hash(h: str) -> bool:
     if not re.fullmatch(r"[0-9a-fA-F]+", h):
         return False
     return len(h) in (32, 40, 64)
+
+
+def _sources_for(ioc_type: str) -> list[str]:
+    return [s for s in SOURCES if ioc_type in _SOURCE_IOC_SUPPORT[s]]
 
 
 def enrich(ioc: str, ioc_type: str, sources: list[str]) -> list[IOCResult]:
@@ -119,12 +119,15 @@ def main() -> None:
 
     ip = ""
     while True:
-        ip = input("\nEnter target IP address: ").strip()
+        ip = input(
+            "\nEnter target IP address (IPv4 e.g. 1.1.1.1, "
+            "IPv6 e.g. 2606:4700:4700::1111): "
+        ).strip()
         if not ip:
             print("  IP address is required.")
             continue
         if not _validate_ip(ip):
-            print("  Invalid IP — enter 4 octets (0-255 each), e.g. 1.1.1.1")
+            print("  Invalid IP address. Enter a valid IPv4 or IPv6 address.")
             continue
         break
 
@@ -166,16 +169,13 @@ def main() -> None:
                 print("  Warning: URL should start with http:// or https://.")
             url = u
 
-    ip_sources = ["otx", "vt", "abuseipdb"]
-    other_sources = ["otx", "vt"]
-
-    iocs_to_process = [(ip, "ip", ip_sources)]
+    iocs_to_process = [(ip, "ip", _sources_for("ip"))]
     if domain:
-        iocs_to_process.append((domain, "domain", other_sources))
+        iocs_to_process.append((domain, "domain", _sources_for("domain")))
     if file_hash:
-        iocs_to_process.append((file_hash, "hash", other_sources))
+        iocs_to_process.append((file_hash, "hash", _sources_for("hash")))
     if url:
-        iocs_to_process.append((url, "url", other_sources))
+        iocs_to_process.append((url, "url", _sources_for("url")))
 
     all_results: list[IOCResult] = []
 

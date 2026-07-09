@@ -22,7 +22,7 @@ from normalizers.schema import IOCResult, NormalizationError
 # OTX pulses are curated by threat researchers and community analysts.
 # A pulse_count > 0 means at least one human or automated system decided
 # this indicator was worth reporting as a threat.
-OTX_MALICIOUS_PULSE_THRESHOLD = 1
+OTX_MALICIOUS_PULSE_THRESHOLD = 0
 
 # Maximum number of pulse tags to collect to avoid unbounded arrays.
 OTX_MAX_TAGS = 100
