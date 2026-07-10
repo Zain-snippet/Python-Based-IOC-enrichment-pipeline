@@ -28,7 +28,7 @@ Sources that don't support a given IOC type are skipped automatically rather tha
 - **VirusTotal:** 15 seconds between requests (4 req/min free tier)
 - **AbuseIPDB:** 6 seconds between requests
 
-All calls run sequentially — one source at a time, one IOC at a time — so a full IP lookup across all three sources takes roughly 20–25 seconds, and a session covering all four IOC types can take 1–2 minutes. This is a known limitation of building against free-tier APIs without concurrency; see [Known Limitations](#known-limitations--ideas-for-improvement) below.
+For each IOC, supported sources are queried in parallel (AlienVault OTX, VirusTotal, and AbuseIPDB run concurrently where applicable), while different IOC types are still processed sequentially. This reduces the time required for each individual IOC lookup while keeping the overall workflow simple and within each provider's rate limits.
 
 ### 3. Normalization
 Each source has a completely different response schema and scoring model — OTX has no native "malicious" flag and requires inferring one from pulse counts, VirusTotal reports a detection ratio across dozens of AV engines, and AbuseIPDB gives a direct 0–100 confidence score. Every raw response is translated into one common internal structure so the rest of the pipeline doesn't need to know which source it came from.
